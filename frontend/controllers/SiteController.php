@@ -119,9 +119,6 @@ class SiteController extends Controller
                     'price'   => $value->price,
                     'price_f' => (new Library)->getFormatRupiah($value->price),
                 ];
-                // $data_produk[$key]['keterangan']    = $value['keterangan'];
-                // $data_produk[$key]['total_harga']   = (int)($value['harga_produk']+$value['harga_markup']);
-                // $data_produk[$key]['total_harga_f'] = 'Rp '.number_format($data_produk[$key]['total_harga'],0,',','.');
                 // $data_produk[$key]['gambar_link']   = Yii::getAlias('@common/uploads/layanan/'.$value['file_name']);
             }    
         }

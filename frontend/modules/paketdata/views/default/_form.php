@@ -15,13 +15,13 @@ use common\models\Produk;
 
         <?= $form->errorSummary($model) ?>
 
-        <?= $form->field($model, 'code_layanan')->textInput(['type' => 'hidden', 'id' => 'code_layanan', 'value' => $modelLayanan])->label(false) ?>
+        <?= $form->field($model, 'type')->textInput(['type' => 'hidden', 'id' => 'type', 'value' => $modelLayanan])->label(false) ?>
 
-        <?= $form->field($model, 'kode_produk')->textInput(['type' => 'hidden', 'id' => 'kode_produk'])->label(false) ?>
+        <?= $form->field($model, 'code')->textInput(['type' => 'hidden', 'id' => 'code'])->label(false) ?>
 
         <?= $form->field($model, 'dest')->textInput([
             'class'       => 'form-control',
-            'onkeyup'     => 'cekNotelp()',
+            'onkeyup'     => 'list_harga()',
             'type'        => 'tel',
             'placeholder' => 'No 08xxx',
             'autofocus'   => true,
@@ -29,7 +29,7 @@ use common\models\Produk;
         ])->label('Nomor Telpon') ?>
 
         <p id="error_para" class="text-danger">Periksa kembali nomor anda</p>
-        
+
         <div class="form-group">
             <?= Html::submitButton('Beli', ['class' => 'btn btn-primary btn-sm tombol']) ?>
         </div>
