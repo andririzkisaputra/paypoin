@@ -97,7 +97,13 @@ class CronController extends Controller
                         }
                     }
                 } elseif ($value->c2 === 'ppob') {
-                    $ppob          = preg_match('/PDAM/i', $v->produk) ? 'PDAM' : null;
+                    if (preg_match('/PDAM/i', $v->produk)) {
+                        $ppob = 'PDAM';
+                    } elseif (preg_match('/SPEEDY/i', $v->produk)) {
+                        $ppob = 'TELKOM';
+                    } else {
+                        $ppob = null;
+                    }
                     $array['note'] = 0;
                     if ($ppob) {
                         $array['type']     = $ppob;
