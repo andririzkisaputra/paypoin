@@ -129,9 +129,9 @@ class CronController extends Controller
                 $value->c3 = $ppob;
                 $value->c5 = $ppob;
                 $model  = Category::findOne([
-                    'type' => $ppob,
-                    'code' => $ppob,
-                    'real' => $ppob
+                    'type' => $value->c2,
+                    'code' => $value->c3,
+                    'real' => $value->c5
                 ]);
             }
 
