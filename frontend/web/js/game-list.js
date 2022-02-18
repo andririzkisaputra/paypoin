@@ -6,4 +6,4 @@ $(document).ready(function() {
         $('#kode_produk').val(kode_produk);
         console.log($(this).attr("data-id"));
     });
-  });
+});

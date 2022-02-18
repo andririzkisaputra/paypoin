@@ -47,7 +47,7 @@ class DefaultController extends Controller
             }
         }
 
-        $result['modelLayanan'] = 'pulsa-reguler';
+        $result['modelLayanan'] = 'paket-data';
         $result['model']        = $model;
         return $this->render('index', $result);
     }

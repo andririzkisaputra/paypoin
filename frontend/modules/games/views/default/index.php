@@ -15,7 +15,7 @@ $this->title = 'Home';
                     <div class="">
                         <?= Html::img(Url::toRoute(['image', 'session_upload_id' => $value->session_upload_id]), ['class' => 'img-responsive', 'style' => 'width: 100px; height: 100px; margin: 20px;']); ?>
                     </div>
-                    <div class="" style="background-color: #ffc105; color: #ffffff; text-align: center; margin-top: revert;">
+                    <div class="bottom-text-list">
                         <b><?= $value->kategori_game; ?></b>
                     </div>
                 </a>

@@ -144,3 +144,11 @@ figcaption {
     border-color: #ffc105; 
     border-style: solid;
 }
+
+.bottom-text-list {
+    background-color: #ffc105; 
+    color: #ffffff; 
+    text-align: center; 
+    margin-top: revert; 
+    height: 100%
+}

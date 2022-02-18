@@ -111,7 +111,7 @@ use linslin\yii2\curl;
 
     public function getHargaPulsa($key)
     {
-        $params = ['5', '10', '25', '40', '50', '100', '150', '200', '500'];
+        $params = ['5', '10', '25', '40', '50', '100', '150', '200', '500', '1000'];
         return in_array($key, $params);
     }
 

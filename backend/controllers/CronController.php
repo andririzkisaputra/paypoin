@@ -52,13 +52,11 @@ class CronController extends Controller
             
             foreach ($produk as $k => $v) {
                 
-                $model  = Product::findOne(['code' => $v->kode]);
-                $info   = preg_replace("/H2H/","", $v->produk);
-                $info   = preg_replace("/[^0-9]/","", $info);
+                $model  = Product::findOne(['code' => $v->kode, 'brand' => $value->c3]);
+                $info   = preg_replace("/[^0-9]/","", $v->kode);
                 $harga  = preg_replace("/Rp. /","", $v->harga);
                 $harga  = preg_replace("/,/","", $harga);
                 $harga  = preg_replace("/-/","", $harga);
-
 
                 $c2     = preg_replace("/-/"," ", $value->c2);
 
@@ -77,7 +75,7 @@ class CronController extends Controller
                     'category'    => $value->c4,
                     'provider'    => $value->c1,
                 ];
-
+                
                 if ($value->c2 == 'pulsa-reguler' && (new Library)->getHargaPulsa($info) && $harga >= '5000') {
                     if ($model) {
                         if ((new CronForm)->updateProduct($model, $array)) {
@@ -88,9 +86,7 @@ class CronController extends Controller
                             $insertProduct++;
                         }
                     }
-                }
-
-                if ($value->c2 == 'paket-data') {
+                } elseif ($value->c2 != 'pulsa-reguler' && $value->c2 != 'ppob') {
                     if ($model) {
                         if ((new CronForm)->updateProduct($model, $array)) {
                             $updateProduct++;
@@ -100,15 +96,47 @@ class CronController extends Controller
                             $insertProduct++;
                         }
                     }
+                } elseif ($value->c2 === 'ppob') {
+                    $ppob          = preg_match('/PDAM/i', $v->produk) ? 'PDAM' : null;
+                    $array['note'] = 0;
+                    if ($ppob) {
+                        $array['type']     = $ppob;
+                        $array['brand']    = $ppob;
+                        $array['category'] = ($value->code === 'INQ') ? 'CEK '.$ppob : $ppob;
+
+                        $model  = Product::findOne(['code' => $v->kode, 'brand' => $array['brand']]);
+                        if ($model) {
+                            if ((new CronForm)->updateProduct($model, $array)) {
+                                $updateProduct++;
+                            }
+                        } else {
+                            if ((new CronForm)->saveProduct($array)) {
+                                $insertProduct++;
+                            }
+                        }
+                    }
                 }
             }
 
-            $model  = Category::findOne([
-                'type' => $value->c2,
-                'code' => $value->c3,
-                'real' => $value->c5
-            ]);
+            if ($value->c2 != 'ppob') {
+                $model  = Category::findOne([
+                    'type' => $value->c2,
+                    'code' => $value->c3,
+                    'real' => $value->c5
+                ]);
+            } elseif ($value->c2 == 'ppob') {
+                $value->c2 = strtolower($ppob);
+                $value->c3 = $ppob;
+                $value->c5 = $ppob;
+                $model  = Category::findOne([
+                    'type' => $ppob,
+                    'code' => $ppob,
+                    'real' => $ppob
+                ]);
+            }
 
+
+                
             if ($model) {
                 if ((new CronForm)->updateCategory($model, $value)) {
                     $updateCategory++;

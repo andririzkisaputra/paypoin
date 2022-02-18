@@ -4,7 +4,7 @@ namespace frontend\modules\paketdata\models;
 
 use Yii;
 use yii\base\Model;
-use common\models\Tagihan;
+use common\models\Trx;
 use common\models\Produk;
 use common\components\PayPoinApi;
 use common\components\Library;
@@ -12,7 +12,7 @@ use common\components\Library;
 /**
  * Signup form
  */
-class TagihanForm extends Tagihan
+class TagihanForm extends Trx
 {
     public $kode_produk;
     public $dest;
@@ -28,8 +28,10 @@ class TagihanForm extends Tagihan
     {
         return [
             // kode_produk, dest are required
-            [['dest'], 'required'],
-            [['kode_tagihan', 'kode_produk', 'dest', 'status_tagihan', 'total_harga', 'is_emoney', 'is_emoney_status'], 'string'],
+            [['data'], 'required'],
+            [['data', 'status', 'refund'], 'string'],
+            [['price', 'profit', 'created_at', 'updated_at'], 'integer'],
+            [['code_bill', 'user', 'code', 'name', 'costumer_name', 'trxtype', 'provider'], 'string', 'max' => 255],
         ];
     }
 
@@ -51,7 +53,7 @@ class TagihanForm extends Tagihan
         $tagihan->total_harga    = (string)$total_harga;
         $tagihan->dest           = (string)$this->dest;
         $tagihan->save();
-        
+
         return $tagihan->tagihan_id;
     }
 

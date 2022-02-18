@@ -24,7 +24,7 @@ $this->registerJsFile(
                     <div class="">
                         <?= Html::img(Url::toRoute(['image', 'session_upload_id' => $games->session_upload_id]), ['class' => 'img-responsive', 'style' => 'width: 100px; height: 100px; margin: 20px;']); ?>
                     </div>
-                    <div class="" style="background-color: #ffc105; color: #ffffff; text-align: center; margin-top: revert;">
+                    <div class="bottom-text-list">
                         <p><b><?= $value->nama_produk; ?></b></p>
                         <p><b><?= (new Library)->getFormatRupiah($value->harga_produk); ?></b></p>
                     </div>

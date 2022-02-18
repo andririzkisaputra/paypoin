@@ -2,11 +2,11 @@ var cache_no = '';
 $('#error_para').hide();
 $(".tombol").prop("disabled", true);
 
-$(document).on('click', '.click_produk', function() {
+$(document).on('click', '.kategori', function() {
+    $(".list-kategori").find(".active-list").removeClass("active-list");
+    $(this).addClass("active-list");
     var kode_produk = $(this).attr("data-id");
-    console.log(kode_produk);
     $('#kode_produk').val(kode_produk);
-    $('#id-'+kode_produk).addClass("border-active");
     $(".tombol").prop("disabled", false);
 });
 
@@ -41,49 +41,23 @@ function list_harga() {
                 let id = '';
                 if (res.data.length > 0) {
                     res.data.map((item, index) => {
-                        gambar_link = '<img class="img-responsive" src="'+prefix['img']+'" width="150" style="margin: 15px 50px 20px 50px"></img>';
+                        gambar_link = '<img class="img-responsive" src="'+prefix['img']+'" width="50%" style="min-width: -webkit-fill-available"></img>';
                         id          = 'id-'+item.code;
                         array.push(
-                            '<label class="click_produk" data-id='+item.code+' id='+id+' style="width: 250px; margin:2px">'
-                                +gambar_link
-                                +'<figcaption>'+item.name+'</figcaption>'
-                                +'<figcaption>'+item.price_f+'</figcaption>'
+                            '<label class="kategori" data-id='+item.code+' id='+id+' style="width: 150px;">'
+                                +'<div class="">'
+                                    +gambar_link
+                                +'</div>'
+                                +'<div class="bottom-text-list">'
+                                    +'<figcaption><b>'+item.name+'</b></figcaption>'
+                                    +'<figcaption><b>'+item.price_f+'</b></figcaption>'
+                                +'</div>'
                             +'</label>'
-                        );  
-                        // if (code_layanan == 'pulsa') {
-                        //     if (index == 0) {  
-                        //         array.push(
-                        //             '<label class="click_produk active" data-id='+item.kode_produk+' id='+id+' style="width: 250px; margin:2px">'
-                        //                 +gambar_link
-                        //                 +'<figcaption>'+item.nama_produk+'</figcaption>'
-                        //                 +'<figcaption>'+item.total_harga_f+'</figcaption>'
-                        //             +'</label>'
-                        //         );  
-                        //     } else {
-                        //         array.push(
-                        //             '<label class="click_produk" data-id='+item.kode_produk+' id='+id+' style="width: 250px; margin:2px">'
-                        //                 +gambar_link
-                        //                 +'<figcaption>'+item.nama_produk+'</figcaption>'
-                        //                 +'<figcaption>'+item.total_harga_f+'</figcaption>'
-                        //             +'</label>'
-                        //         );  
-                        //     }                            
-                        // } else {
-                        //     array.push(
-                        //         '<label class="click_produk" data-id='+item.kode_produk+' id='+id+' style="width: 250px; margin:2px">'
-                        //             +gambar_link
-                        //             +'<div style="text-align: center;">'
-                        //                 +'<figcaption>'+item.keterangan+'</figcaption>'
-                        //                 +'<figcaption>'+item.total_harga_f+'</figcaption>'
-                        //             +'</div>'
-                        //         +'</label>'
-                        //     );
-    
-                        // }
+                        );
                     })
                     array = array.join('');
                     html  = '<h2>Harga</h2>'
-                            +'<div class="list-harga" id="list-pulsa">'
+                            +'<div class="list-kategori" id="">'
                                 +array.toString()
                             +'</div>';
                 } else {
@@ -94,16 +68,7 @@ function list_harga() {
                     }
                 }
                 $('#my_harga').html(html);
-                var btnContainer = document.getElementById("my_harga");
-                var btns = btnContainer.getElementsByClassName("click_produk");
-                console.log(btns.length);
-                for (var i = 0; i < btns.length; i++) {
-                    btns[i].addEventListener("click", function() {
-                        var current = document.getElementsByClassName("active");
-                        current[0].className = current[0].className.replace(" active", "");
-                        this.className += " active";
-                    });
-                }
+                
                 return true;
             },
             error: function(e){
@@ -246,25 +211,25 @@ function prefixData() {
             "id"     : "AXIS",
             "prefix" : "0831",
             "name"   : "Axis",
-            "img"    : "https://npay.kemasayur.id/uploads/operator/xl.png"
+            "img"    : "https://npay.kemasayur.id/uploads/operator/axis.png"
         },
         {
             "id"     : "AXIS",
             "prefix" : "0832",
             "name"   : "Axis",
-            "img"    : "https://npay.kemasayur.id/uploads/operator/xl.png"
+            "img"    : "https://npay.kemasayur.id/uploads/operator/axis.png"
         },
         {
             "id"     : "AXIS",
             "prefix" : "0833",
             "name"   : "Axis",
-            "img"    : "https://npay.kemasayur.id/uploads/operator/xl.png"
+            "img"    : "https://npay.kemasayur.id/uploads/operator/axis.png"
         },
         {
             "id"     : "AXIS",
             "prefix" : "0838",
             "name"   : "Axis",
-            "img"    : "https://npay.kemasayur.id/uploads/operator/xl.png"
+            "img"    : "https://npay.kemasayur.id/uploads/operator/axis.png"
         },
         {
             "id"     : "THREE",

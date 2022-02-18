@@ -64,10 +64,10 @@ class CronForm extends Product
         $model->code        = $data['code'];
         $model->name        = $data['name'];
         $model->note        = $data['note'];
-        $model->fund        = $data['fund'];
-        $model->fee         = $data['fee'];
-        $model->bill        = $data['bill'];
-        $model->price       = $data['price'];
+        // $model->fund        = $data['fund'];
+        // $model->fee         = $data['fee'];
+        // $model->bill        = $data['bill'];
+        // $model->price       = $data['price'];
         $model->price_basic = $data['price_basic'];
         $model->status      = $data['status'];
         $model->brand       = $data['brand'];
@@ -96,7 +96,6 @@ class CronForm extends Product
         $model->type  = $data->c2;
         $model->real  = $data->c5;
         $model->order = $data->c6;
-        $model->img   = NULL;
 
         return $model->save(false);
     }
