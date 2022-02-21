@@ -13,6 +13,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\Response;
 use yii\db\Query;
+use yii\web\UploadedFile;
 
 /**
  * ProdukController implements the CRUD actions for ProdukForm model.
@@ -60,10 +61,10 @@ class ProdukController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($produk_id)
+    public function actionView($id)
     {
         return $this->render('view', [
-            'model' => $this->findModel($produk_id),
+            'model' => $this->findModel($id),
         ]);
     }
 
@@ -129,6 +130,51 @@ class ProdukController extends Controller
 
     }
 
+    public function actionImage($img)
+    {
+        $imgFullPath = Yii::getAlias('@common/uploads/kategori-game/'.$img);
+        $response = Yii::$app->getResponse();
+        $response->headers->set('Content-Type', ['image/jpeg']);
+        $response->format = Response::FORMAT_RAW;
+
+        if (!is_resource($response->stream = fopen($imgFullPath, 'r'))) {
+            throw new \yii\web\ServerErrorHttpException('file access failed: permission deny');
+        }
+
+        return $response->send();
+    }
+
+    public function actionCreateImg($brand, $id)
+    {
+        $model = new Product;
+        if ($model->load(Yii::$app->request->post())) {
+            $model->img = UploadedFile::getInstance($model, 'img');
+            $data       = Product::findAll(['brand' => $brand]);
+
+            if ($model->validate()) {
+                $path     = Yii::getAlias('@common/uploads/kategori-game/');
+                $filename = strtolower($brand).'.'.$model->img->extension;
+
+                $redirect = ['produk/view', 'id' => $id];
+                
+                if (!$model->img->saveAs($path.$filename)) {
+                    Yii::error(['msg' => 'Gagal Menyimpan Gambar', 'errors' => $model->errors], __METHOD__);
+                }
+
+                foreach ($data as $key => $value) {
+                    $update      = Product::findOne(['id' => $value->id]);
+                    $update->img = $filename;
+                    $update->update();
+                }
+                
+                return $this->redirect($redirect);
+            }
+        }
+
+        return $this->render('_formGambar', [
+            'model' => $model
+        ]);
+    }
 
     public function actionGetKota() 
     {

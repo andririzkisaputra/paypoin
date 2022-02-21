@@ -11,12 +11,12 @@ $this->title = 'Home';
     <div class="form-group" style="margin: 20px 20px 20px 0px">
         <div class="list-kategori">
             <?php foreach ($modelGame as $key => $value) :?>
-                <a href="games/default/list-harga?game=<?= $value->kategori_game ?>" class="kategori">
+                <a href="games/default/list-harga?game=<?= $value->brand ?>" class="kategori">
                     <div class="">
-                        <?= Html::img(Url::toRoute(['image', 'session_upload_id' => $value->session_upload_id]), ['class' => 'img-responsive', 'style' => 'width: 100px; height: 100px; margin: 20px;']); ?>
+                        <?= Html::img(Url::toRoute(['image', 'img' => $value->img]), ['class' => 'img-responsive', 'style' => 'width: 100px; height: 100px; margin: 20px;']); ?>
                     </div>
                     <div class="bottom-text-list">
-                        <b><?= $value->kategori_game; ?></b>
+                        <b><?= $value->brand; ?></b>
                     </div>
                 </a>
             <?php endforeach; ?>

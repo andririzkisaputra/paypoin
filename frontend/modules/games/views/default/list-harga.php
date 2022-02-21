@@ -20,15 +20,15 @@ $this->registerJsFile(
         ]) ?>
         <div class="list-kategori">
             <?php foreach ($modelProduk as $key => $value) :?>
-                <div class="kategori" data-id="<?= $value->kode_produk ?>">
+                <label class="kategori" data-id="<?= $value->code ?>" style="width: 150px;">
                     <div class="">
-                        <?= Html::img(Url::toRoute(['image', 'session_upload_id' => $games->session_upload_id]), ['class' => 'img-responsive', 'style' => 'width: 100px; height: 100px; margin: 20px;']); ?>
+                        <?= Html::img(Url::toRoute(['image', 'img' => $value->img]), ['class' => 'img-responsive', 'style' => 'width: 50%; min-width: -webkit-fill-available']); ?>
                     </div>
                     <div class="bottom-text-list">
-                        <p><b><?= $value->nama_produk; ?></b></p>
-                        <p><b><?= (new Library)->getFormatRupiah($value->harga_produk); ?></b></p>
+                        <p><b><?= $value->name; ?></b></p>
+                        <p><b><?= (new Library)->getFormatRupiah($value->price); ?></b></p>
                     </div>
-                </div>
+                </label>
             <?php endforeach; ?>
         </div>
     </div>

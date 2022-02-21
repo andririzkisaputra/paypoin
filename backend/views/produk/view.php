@@ -8,7 +8,7 @@ use common\components\Library;
 /* @var $this yii\web\View */
 /* @var $model common\models\Produk */
 
-$this->title = $model->nama_produk;
+$this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Produk', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
@@ -17,9 +17,10 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="col-sm-12">
         <h1><?= Html::encode($this->title) ?></h1>
             <p>
-                <?= Html::a('Ubah', ['update', 'produk_id' => $model->produk_id], ['class' => 'btn btn-success']) ?>
+                <?= Html::a('Ubah', ['update', 'id' => $model->id], ['class' => 'btn btn-success']) ?>
+                <?= Html::a('Upload Gambar', ['create-img', 'brand' => $model->brand, 'id' => $model->id], ['class' => 'btn btn-info']) ?>
                 <?= 
-                    Html::a('Hapus Produk', ['delete', 'produk_id' => $model->produk_id], [
+                    Html::a('Hapus Produk', ['delete', 'id' => $model->id], [
                         'class' => 'btn btn-danger',
                         'data' => [
                             'confirm' => 'Are you sure you want to change this status item?',
@@ -33,25 +34,19 @@ $this->params['breadcrumbs'][] = $this->title;
                     <?= DetailView::widget([
                         'model' => $model,
                         'attributes' => [
-                            'produk_id',
-                            'code_layanan',
-                            'kode_produk',
-                            'nama_produk',
+                            'id',
+                            'type',
+                            'code',
+                            'name',
                             [
                                 'label' => 'Harga Produk',
-                                'value' => (new Library)->getFormatRupiah($model->harga_produk),
+                                'value' => (new Library)->getFormatRupiah($model->price),
                                 'contentOptions' => ['class' => 'bg-red'],
                                 'captionOptions' => ['tooltip' => 'Tooltip'],
                             ],
                             [
-                                'label' => 'Penurunan',
-                                'value' => (new Library)->getFormatRupiah($model->harga_markdown),
-                                'contentOptions' => ['class' => 'bg-red'],
-                                'captionOptions' => ['tooltip' => 'Tooltip'],
-                            ],
-                            [
-                                'label' => 'Kenaikan',
-                                'value' => (new Library)->getFormatRupiah($model->harga_markup),
+                                'label' => 'Harga Produk Awal',
+                                'value' => (new Library)->getFormatRupiah($model->price_basic),
                                 'contentOptions' => ['class' => 'bg-red'],
                                 'captionOptions' => ['tooltip' => 'Tooltip'],
                             ],
@@ -59,6 +54,17 @@ $this->params['breadcrumbs'][] = $this->title;
                             'updated_at:datetime',
                         ],
                     ]) ?>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">
+                            <h4>Gambar</h4>
+                        </div>
+                        <div class="panel-body">
+                            <?= $this->render('_gambar', ['model' => $model]) ?>
+                        </div>
+                    </div>
                 </div>
             </div>
     </div>
