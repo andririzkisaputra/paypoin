@@ -101,6 +101,44 @@ class CronController extends Controller
                         $ppob = 'PDAM';
                     } elseif (preg_match('/SPEEDY/i', $v->produk)) {
                         $ppob = 'TELKOM';
+                        $value->c2 = strtolower($ppob);
+                        $value->c3 = $ppob;
+                        $value->c5 = $ppob;
+                        $model  = Category::findOne([
+                            'type' => $value->c2,
+                            'code' => $value->c3,
+                            'real' => $value->c5
+                        ]);
+
+                        if ($model) {
+                            if ((new CronForm)->updateCategory($model, $value)) {
+                                $updateCategory++;
+                            }
+                        } else {
+                            if ((new CronForm)->saveCategory($value)) {
+                                $insertCategory++;
+                            }
+                        }
+                    } elseif (preg_match('/PLN POSTPAID BY STAND/i', $v->produk)) {
+                        $ppob = 'TAGIHAN LISTRIK';
+                        $value->c2 = str_replace(' ', '-', strtolower($ppob));
+                        $value->c3 = $ppob;
+                        $value->c5 = $ppob;
+                        $model  = Category::findOne([
+                            'type' => $value->c2,
+                            'code' => $value->c3,
+                            'real' => $value->c5
+                        ]);
+
+                        if ($model) {
+                            if ((new CronForm)->updateCategory($model, $value)) {
+                                $updateCategory++;
+                            }
+                        } else {
+                            if ((new CronForm)->saveCategory($value)) {
+                                $insertCategory++;
+                            }
+                        }
                     } else {
                         $ppob = null;
                     }
@@ -120,6 +158,7 @@ class CronController extends Controller
                                 $insertProduct++;
                             }
                         }
+                        
                     }
                 }
             }
@@ -140,9 +179,7 @@ class CronController extends Controller
                     'real' => $value->c5
                 ]);
             }
-
-
-                
+           
             if ($model) {
                 if ((new CronForm)->updateCategory($model, $value)) {
                     $updateCategory++;
