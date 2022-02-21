@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
-use common\models\Produk;
+use common\models\Product;
 use common\components\Library;
 
 /* @var $this yii\web\View */
@@ -16,21 +16,22 @@ use common\components\Library;
 
         <?= $form->errorSummary($model) ?>
 
-        <?= $form->field($model, 'code_layanan')->textInput(['type' => 'hidden', 'id' => 'code_layanan', 'value' => $modelLayanan])->label(false) ?>
+        <?= $form->field($model, 'trxtype')->textInput(['type' => 'hidden', 'id' => 'trxtype', 'value' => $modelLayanan])->label(false) ?>
 
-        <?= $form->field($model, 'kode_produk')->textInput(['type' => 'hidden', 'id' => 'kode_produk'])->label(false) ?>
+        <?= $form->field($model, 'code')->textInput(['type' => 'hidden', 'id' => 'kode_produk'])->label(false) ?>
 
-        <?= $form->field($model, 'is_emoney')->dropDownList(
-            (new Library)->getEmoney(),
-            ['prompt' => 'Pilih E-Money Top Up', 'id' => 'emoney_dropdown'],
+        <?= $form->field($model, 'brand')->dropDownList(
+            ArrayHelper::map(
+                Product::find()->where([
+                    'type'     => 'e-money'
+                ])->groupBy('brand')->orderBy(['brand' => SORT_ASC])->all(), 'brand', 'brand'
+            ),
+            ['prompt' => 'Pilih E-Money Top Up', 'id' => 'brand'],
         )->label('Pilih') ?>
 
-        <?= $form->field($model, 'is_emoney_status')->dropDownList(
-            (new Library)->getStatusAkun(),
-            ['id' => 'statusakun_dropdown'],
-        )->label('Status Akun') ?>
-
-        <?= $form->field($model, 'dest')->textInput([
+        <div class="form-group field-category" id="category"></div>
+        
+        <?= $form->field($model, 'data')->textInput([
             'class'       => 'form-control',
             // 'onkeyup'     => 'cekNotelp()',
             'type'        => 'tel',

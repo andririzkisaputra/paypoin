@@ -3,85 +3,70 @@ $(document).ready(function() {
     $('.field-statusakun_dropdown').hide();
 });
 
-$(document).on('click', '.click_produk', function() {
-    var id          = $(this).attr("id");
+$(document).on('click', '.kategori', function() {
+    $(".list-kategori").find(".active-list").removeClass("active-list");
+    $(this).addClass("active-list");
     var kode_produk = $(this).attr("data-id");
-    console.log(kode_produk);
     $('#kode_produk').val(kode_produk);
     $(".tombol").prop("disabled", false);
 });
 
-$('#emoney_dropdown').on('change', function() {
+$('#brand').on('change', function() {
+    $('#kode_produk').val('');
     $(".tombol").prop("disabled", true);
-    var emoney  = $( "#emoney_dropdown option:selected" ).val();
-    var status  = $( "#statusakun_dropdown option:selected" ).val();
-    var layanan = $( "#code_layanan" ).val();
-    var baseUrl = 'e-money/default/get-emoney';
-    if (emoney == '1' || emoney == '4') {
-        $('.field-statusakun_dropdown').show();
-    } else {
-        status = '';
-        $('.field-statusakun_dropdown').hide();
-    }
+    var brand   = $( "#brand option:selected" ).val();
+    var trxtype = $( "#trxtype" ).val();
+    var baseUrl = 'e-money/default/get-brand';
     
     $.ajax({
         type     : 'POST',
         url      : baseUrl,
         dataType : 'JSON',
         data     : {
-            'is_emoney'        : emoney,
-            'is_emoney_status' : status,
-            'code_layanan'     : layanan,
+            'brand'   : brand,
+            'trxtype' : trxtype,
         },
         success: function(res){
             let html  = '';
             if (res.success) {
                 let array = [];
-                let gambar_link = '';
-                let id = '';
                 if (res.data.length > 0) {
                     res.data.forEach((item, index) => {
-                        // gambar_link = '<img class="img-responsive" src="'+prefix['img']+'" width="150" style="margin: 15px 50px 20px 50px"></img>';
-                        id = 'id-'+item.kode_produk;
-                        if (index == 0) {
+                        if (brand === 'GOJEK' || brand === 'GRAB') {
                             array.push(
-                                '<label class="click_produk active" data-id='+item.kode_produk+' id='+id+' style="width: 250px; margin:2px">'
-                                    +'<figcaption>'+item.nama_produk+'</figcaption>'
-                                    +'<figcaption>'+item.total_harga+'</figcaption>'
-                                +'</label>'
-                            );                                   
+                                '<option value="'+item.category+'">'+item.category+'</option>'
+                            );                                
                         } else {
                             array.push(
-                                '<label class="click_produk" data-id='+item.kode_produk+' id='+id+' style="width: 250px; margin:2px">'
-                                    +'<figcaption>'+item.nama_produk+'</figcaption>'
-                                    +'<figcaption>'+item.total_harga+'</figcaption>'
+                                '<label class="kategori" data-id='+item.code+' style="width: 10%; margin:22px; padding:10px;">'
+                                    // +'<figcaption><b>'+item.name+'</b></figcaption>'
+                                    +'<figcaption><b>'+item.price_f+'</b></figcaption>'
                                 +'</label>'
-                            );   
-    
+                            );    
                         }
                     })
                     array = array.join('');
-                    html  = '<h2>Harga</h2>'
-                            +array.toString();
-                } else {
-                    if (no.length > 3) {
-                        $('#error_para').show();
+                    if (brand === 'GOJEK' || brand === 'GRAB') {
+                        html = '<label class="control-label" for="brand">Pilih</label>'
+                                +'<select id="category" class="form-control" name="TagihanForm[category]">'
+                                    +'<option value="">Kategori</option>'
+                                    +array.toString()
+                                +'</select>';
+                        $('#category').html(html);
+                        $('#my_harga').html('');
+                        $('#category').show();
+                        return true;                          
                     } else {
-                        $('#error_para').hide();
+                        html = '<h2>Harga</h2>'
+                                +'<div class="list-kategori row">'
+                                +array.toString()
+                             +'</div>';
+                        $('#my_harga').html(html);
+                        $('#category').html('');
+                        $('#category').hide();
+                        return true;
                     }
                 }
-                $('#my_harga').html(html);
-                var btnContainer = document.getElementById("my_harga");
-                var btns = btnContainer.getElementsByClassName("click_produk");
-                console.log(btns.length);
-                for (var i = 0; i < btns.length; i++) {
-                    btns[i].addEventListener("click", function() {
-                        var current = document.getElementsByClassName("active");
-                        current[0].className = current[0].className.replace(" active", "");
-                        this.className += " active";
-                    });
-                }
-                return true;
             } else {
                 $('#my_harga').html(html);
                 return false;
@@ -95,82 +80,55 @@ $('#emoney_dropdown').on('change', function() {
 });
 
 
-$('#statusakun_dropdown').on('change', function() {
+$('#category').on('change', function() {
+    $('#kode_produk').val('');
     $(".tombol").prop("disabled", true);
-    var emoney  = $( "#emoney_dropdown option:selected" ).val();
-    var status  = $( "#statusakun_dropdown option:selected" ).val();
+    var brand    = $( "#brand option:selected" ).val();
+    var category = $( "#category option:selected" ).val();
+    var trxtype  = $( "#trxtype" ).val();
     var layanan = $( "#code_layanan" ).val();
-    var baseUrl = 'e-money/default/get-emoney';
-    if (emoney == '1' || emoney == '4') {
-        $('.field-statusakun_dropdown').show();
-    } else {
-        $('.field-statusakun_dropdown').hide();
-    }
-    $.ajax({
-        type     : 'POST',
-        url      : baseUrl,
-        dataType : 'JSON',
-        data     : {
-            'is_emoney'        : emoney,
-            'is_emoney_status' : status,
-            'code_layanan'       : layanan,
-        },
-        success: function(res){
-            let html  = '';
-            if (res.success) {
-                let array = [];
-                let gambar_link = '';
-                let id = '';
-                if (res.data.length > 0) {
-                    res.data.forEach((item, index) => {
-                        // gambar_link = '<img class="img-responsive" src="'+prefix['img']+'" width="150" style="margin: 15px 50px 20px 50px"></img>';
-                        id = 'id-'+item.kode_produk;
-                        if (index == 0) {
+    var baseUrl = 'e-money/default/get-brand';
+    if (category) {
+        $.ajax({
+            type     : 'POST',
+            url      : baseUrl,
+            dataType : 'JSON',
+            data     : {
+                'brand'    : brand,
+                'trxtype'  : trxtype,
+                'category' : category,
+            },
+            success: function(res){
+                let html  = '';
+                if (res.success) {
+                    let array = [];
+                    if (res.data.length > 0) {
+                        res.data.forEach((item, index) => {
                             array.push(
-                                '<label class="click_produk active" data-id='+item.kode_produk+' id='+id+' style="width: 250px; margin:2px">'
-                                    +'<figcaption>'+item.nama_produk+'</figcaption>'
-                                    +'<figcaption>'+item.total_harga+'</figcaption>'
-                                +'</label>'
-                            );                                   
-                        } else {
-                            array.push(
-                                '<label class="click_produk" data-id='+item.kode_produk+' id='+id+' style="width: 250px; margin:2px">'
-                                    +'<figcaption>'+item.nama_produk+'</figcaption>'
-                                    +'<figcaption>'+item.total_harga+'</figcaption>'
+                                '<label class="kategori" data-id='+item.code+' style="width: 10%; margin:22px; padding:10px;">'
+                                    +'<figcaption><b>'+item.price_f+'</b></figcaption>'
                                 +'</label>'
                             );   
-    
-                        } 
-                    })
-                    array = array.join('');
-                    html  = '<h2>Harga</h2>'
-                            +array.toString();
-                } else {
-                    if (no.length > 3) {
-                        $('#error_para').show();
-                    } else {
-                        $('#error_para').hide();
+                        })
+                        array = array.join('');
+                        html = '<h2>Harga</h2>'
+                                +'<div class="list-kategori row">'
+                                +array.toString()
+                             +'</div>';
                     }
+                    $('#my_harga').html(html);
+                    return true;
+                } else {
+                    $('#my_harga').html(html);
+                    return false;
                 }
-                $('#my_harga').html(html);
-                var btnContainer = document.getElementById("my_harga");
-                var btns = btnContainer.getElementsByClassName("click_produk");
-                for (var i = 0; i < btns.length; i++) {
-                    btns[i].addEventListener("click", function() {
-                        var current = document.getElementsByClassName("active");
-                        current[0].className = current[0].className.replace(" active", "");
-                        this.className += " active";
-                    });
-                }
-                return true;
-            } else {
-                $('#my_harga').html(html);
+            },
+            error: function(e){
+                alert('ERROR at PHP side!!');
                 return false;
             }
-        },
-        error: function(e){
-            alert('ERROR at PHP side!!');
-            return false;
-        }
-    });  
+        });  
+    } else {
+        $('#my_harga').html('');
+    }
 });

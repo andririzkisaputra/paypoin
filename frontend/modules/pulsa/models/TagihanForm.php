@@ -45,7 +45,6 @@ class TagihanForm extends Trx
         $tagihan->status    = 'menunggu pembayaran';
         $tagihan->price     = (int)$produk->price;
         $tagihan->provider  = (string)$produk->provider;
-        $tagihan->name      = (string)$produk->name;
         $tagihan->profit    = (int)$produk->price/$produk->price_basic;
         $tagihan->data      = (string)$this->data;
         $tagihan->save();

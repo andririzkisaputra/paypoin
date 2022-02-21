@@ -24,8 +24,8 @@ $this->registerJsFile(
         <div class="list-kategori row">
             <?php foreach ($modelProduk as $value): ?>
                 <label class="kategori" data-id='<?= $value->code ?>' id='id-<?= $value->code ?>' style="width: 10%; margin:22px; padding:10px;">
-                    <figcaption><?= $value->name ?></figcaption>
-                    <figcaption><?= (new Library)->getFormatRupiah($value->price) ?></figcaption>
+                    <figcaption><b><?= $value->name ?></b></figcaption>
+                    <figcaption><b><?= (new Library)->getFormatRupiah($value->price) ?></b></figcaption>
                 </label>
             <?php endforeach; ?>
         </div>
