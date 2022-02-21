@@ -4,23 +4,16 @@ namespace frontend\modules\tokenlistrik\models;
 
 use Yii;
 use yii\base\Model;
-use common\models\Tagihan;
-use common\models\Produk;
+use common\models\Trx;
+use common\models\Product;
 use common\components\PayPoinApi;
 use common\components\Library;
 
 /**
  * Signup form
  */
-class TagihanForm extends Tagihan
+class TagihanForm extends Trx
 {
-    public $code_layanan;
-    public $kode_produk;
-    public $dest;
-    public $is_emoney;
-    public $is_emoney_status;
-    public $provinsi_id;
-    public $kota_id;
 
     /**
      * {@inheritdoc}
@@ -29,8 +22,10 @@ class TagihanForm extends Tagihan
     {
         return [
             // kode_produk, dest are required
-            [['dest'], 'required'],
-            [['code_layanan', 'kode_tagihan', 'kode_produk', 'dest', 'status_tagihan', 'total_harga', 'is_emoney', 'is_emoney_status'], 'string'],
+            [['data'], 'required'],
+            [['data', 'status', 'refund'], 'string'],
+            [['price', 'profit', 'created_at', 'updated_at'], 'integer'],
+            [['code_bill', 'user', 'code', 'name', 'costumer_name', 'trxtype', 'provider', 'note'], 'string', 'max' => 255],
         ];
     }
 
@@ -43,23 +38,38 @@ class TagihanForm extends Tagihan
         $PayPoinApi              = new PayPoinApi;
         $kode_tagihan            = (string)(new Library)->getRendomTagihanCode();
 
-        $produk = Produk::findOne(['code_layanan' => $this->code_layanan, 'jenis' => '1']);
-        $status = $PayPoinApi->getTagihan([
-            'kode_produk'  => $produk->kode_produk, 
-            'kode_tagihan' => $kode_tagihan, 
-            'dest'         => $this->dest, 
-        ]);
-        $tagihan                 = new Tagihan();
-        $tagihan->code_layanan   = $produk->code_layanan;
-        $tagihan->kode_tagihan   = $kode_tagihan;
-        $tagihan->kode_produk    = (string)$this->kode_produk;
-        $tagihan->status_tagihan = '0';
-        $tagihan->total_harga    = '0';
-        $tagihan->dest           = (string)$this->dest;
+        $produk       = Product::findOne(['type' => $this->trxtype, 'category' => 'CEK TOKEN LISTRIK']);
+        $produk_harga = Product::findOne(['code' => $this->code, 'category' => 'umum']);
         
+        $PayPoinApi->getTagihan([
+            'kode_produk'  => $produk->code, 
+            'kode_tagihan' => $kode_tagihan, 
+            'dest'         => $this->data, 
+        ]);
+        sleep(10);
+        $status = $PayPoinApi->getStatusTransaksi([
+            'kode_produk'  => $produk->code, 
+            'kode_tagihan' => $kode_tagihan, 
+            'dest'         => $this->data, 
+        ]);
+        $check                  = preg_match('/sukses/i', $status);
+        $array                  = explode('/',$status);
+        $costumer_name          = ($check) ? str_replace('Nama:','',$array[2]) : NULL;
+        $tagihan                = new Trx();
+        $tagihan->trxtype       = $produk->type;
+        $tagihan->code_bill     = $kode_tagihan;
+        $tagihan->code          = (string)$this->code;
+        $tagihan->costumer_name	= (string)$costumer_name;
+        $tagihan->status        = ($check) ? 'menunggu pembayaran' : 'gagal';
+        $tagihan->price         = (int)$produk_harga->price;
+        $tagihan->profit        = (int)$produk_harga->price/$produk_harga->price_basic;
+        $tagihan->refund        = '0';
+        $tagihan->data          = (string)$this->data;
+        $tagihan->provider      = (string)$produk_harga->provider;
+        $tagihan->name          = (string)$produk_harga->name;
         $tagihan->save();
         
-        return $tagihan->tagihan_id;
+        return $tagihan->id;
     }
 
 }

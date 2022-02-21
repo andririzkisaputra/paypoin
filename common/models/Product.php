@@ -27,6 +27,7 @@ use yii\behaviors\TimestampBehavior;
  */
 class Product extends \yii\db\ActiveRecord
 {
+    public $price_f;
     /**
      * {@inheritdoc}
      */

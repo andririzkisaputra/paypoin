@@ -15,11 +15,11 @@ use common\models\Produk;
 
         <?= $form->errorSummary($model) ?>
 
-        <?= $form->field($model, 'type')->textInput(['type' => 'hidden', 'id' => 'type', 'value' => $modelLayanan])->label(false) ?>
+        <?= $form->field($model, 'trxtype')->textInput(['type' => 'hidden', 'id' => 'type', 'value' => $modelLayanan])->label(false) ?>
 
-        <?= $form->field($model, 'code')->textInput(['type' => 'hidden', 'id' => 'code'])->label(false) ?>
+        <?= $form->field($model, 'code')->textInput(['type' => 'hidden', 'id' => 'kode_produk'])->label(false) ?>
 
-        <?= $form->field($model, 'dest')->textInput([
+        <?= $form->field($model, 'data')->textInput([
             'class'       => 'form-control',
             'onkeyup'     => 'list_harga()',
             'type'        => 'tel',

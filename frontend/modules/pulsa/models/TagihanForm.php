@@ -5,7 +5,7 @@ namespace frontend\modules\pulsa\models;
 use Yii;
 use yii\base\Model;
 use common\models\Trx;
-use common\models\Produk;
+use common\models\Product;
 use common\components\PayPoinApi;
 use common\components\Library;
 
@@ -14,12 +14,6 @@ use common\components\Library;
  */
 class TagihanForm extends Trx
 {
-    public $kode_produk;
-    public $dest;
-    public $is_emoney;
-    public $is_emoney_status;
-    public $provinsi_id;
-    public $kota_id;
 
     /**
      * {@inheritdoc}
@@ -31,7 +25,7 @@ class TagihanForm extends Trx
             [['data'], 'required'],
             [['data', 'status', 'refund'], 'string'],
             [['price', 'profit', 'created_at', 'updated_at'], 'integer'],
-            [['code_bill', 'user', 'code', 'name', 'costumer_name', 'trxtype', 'provider'], 'string', 'max' => 255],
+            [['code_bill', 'user', 'code', 'name', 'costumer_name', 'trxtype', 'provider', 'note'], 'string', 'max' => 255],
         ];
     }
 
@@ -41,20 +35,22 @@ class TagihanForm extends Trx
             return false;
         }
         
-        $kode_tagihan            = (string)(new Library)->getRendomTagihanCode();
-        
-        $produk                  = Produk::findOne(['kode_produk' => $this->kode_produk]);
-        $total_harga             = (int)($produk->harga_produk+$produk->harga_markup);
-        $tagihan                 = new Tagihan();
-        $tagihan->code_layanan   = $produk->code_layanan;
-        $tagihan->kode_tagihan   = $kode_tagihan;
-        $tagihan->kode_produk    = (string)$produk->kode_produk;
-        $tagihan->status_tagihan = '0';
-        $tagihan->total_harga    = (string)$total_harga;
-        $tagihan->dest           = (string)$this->dest;
+        $kode_tagihan       = (string)(new Library)->getRendomTagihanCode();
+        $produk             = Product::findOne(['code' => $this->code]);
+        $tagihan            = new Trx();
+        $tagihan->trxtype   = $produk->type;
+        $tagihan->code_bill = $kode_tagihan;
+        $tagihan->code      = (string)$produk->code;
+        $tagihan->name      = (string)$produk->name;
+        $tagihan->status    = 'menunggu pembayaran';
+        $tagihan->price     = (int)$produk->price;
+        $tagihan->provider  = (string)$produk->provider;
+        $tagihan->name      = (string)$produk->name;
+        $tagihan->profit    = (int)$produk->price/$produk->price_basic;
+        $tagihan->data      = (string)$this->data;
         $tagihan->save();
 
-        return $tagihan->tagihan_id;
+        return $tagihan->id;
     }
 
 }

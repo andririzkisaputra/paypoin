@@ -5,7 +5,7 @@ namespace frontend\modules\pulsa\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
-use common\models\Tagihan;
+use common\models\Trx;
 use common\models\Produk;
 use frontend\modules\pulsa\models\TagihanForm;
 use common\components\PayPoinApi;
@@ -38,10 +38,9 @@ class DefaultController extends Controller
     {
         $model = new TagihanForm();
         if ($model->load(Yii::$app->request->post())) {
-            $tagihan_id = $model->simpan();
-            if ($tagihan_id) {
-                $result['model'] = $this->findModel($tagihan_id);
-                return $this->render('view', $result);
+            $id = $model->simpan();
+            if ($id) {
+                return $this->redirect(['tagihan?id='.$id]);
             } else {
                 \Yii::$app->getSession()->setFlash('error', 'Gagal Silahkan Tunggu Beberapa Saat Lagi');
             }
@@ -52,73 +51,61 @@ class DefaultController extends Controller
         return $this->render('index', $result);
     }
 
-    public function actionBayar($kode_tagihan)
+    public function actionBayar($code_bill)
     {
-        $data       = $this->findModel(['kode_tagihan' => $kode_tagihan]);
-        $status     = (new PayPoinApi)->getTransaksi($data);
+        $data       = $this->findModel(['code_bill' => $code_bill]);
+        $status     = (new PayPoinApi)->getTransaksi([
+            'kode_produk'  => $data->code,
+            'kode_tagihan' => $code_bill,
+            'dest'         => $data->data,
+        ]);
         $check      = preg_match('/GAGAL/i', $status);
-
         if ($check == '0') {
             $check  = preg_match('/Proses/i', $status);
-
             if ($check == '0') {
-                $check     = preg_match('/sukses/i', $status);
-                $countMin  = strpos($status, "Saldo: ");
-                $countMax  = strpos($status, "TrxId");
-                $status    = substr($status, 0, $countMax);
-                $status    = substr($status, $countMin, $countMax);
-                $status    = preg_replace("/Saldo: /","", $status);
-                $status    = preg_replace("/,/","", $status);
-                if ($check) {
-                    \Yii::$app->getSession()->setFlash('success', 'Sukses');
-                } else {
-                    \Yii::$app->getSession()->setFlash('error', 'Gagal');
-                } 
-                $update = Tagihan::findOne([
-                    'kode_tagihan' => $kode_tagihan,
-                ]);
-                if ($update->status_tagihan == '1' || $update->status_tagihan == '0') {
-                    $update->status_tagihan = '2';
-                    $update->save();
-                }
+                // $check     = preg_match('/sukses/i', $status);
+                // $countMin  = strpos($status, "Saldo: ");
+                // $countMax  = strpos($status, "TrxId");
+                // $status    = substr($status, 0, $countMax);
+                // $status    = substr($status, $countMin, $countMax);
+                // $status    = preg_replace("/Saldo: /","", $status);
+                // $status    = preg_replace("/,/","", $status);
+                \Yii::$app->getSession()->setFlash('success', 'Sedang Diproses');
+                $data->status = 'proses';
+                $data->save();
             } else {
-                $countMin  = strpos($status, " - ");
-                $countMax  = strpos($status, " = ");
-                $status    = substr($status, 0, $countMax);
-                $status    = substr($status, $countMin, $countMax);
-                $status    = preg_replace("/ - /","", $status);
-                $status    = preg_replace("/,/","", $status);
-                if ($check) {
-                    \Yii::$app->getSession()->setFlash('success', 'Sedang Diproses');
-                } else {
-                    \Yii::$app->getSession()->setFlash('error', 'Gagal');
-                }
-                $update = Tagihan::findOne([
-                    'kode_tagihan' => $kode_tagihan,
-                ]);
-                if ($update->status_tagihan == '0') {
-                    $update->status_tagihan = '1';
-                    $update->save();
-                }
+                // $countMin  = strpos($status, " - ");
+                // $countMax  = strpos($status, " = ");
+                // $status    = substr($status, 0, $countMax);
+                // $status    = substr($status, $countMin, $countMax);
+                // $status    = preg_replace("/ - /","", $status);
+                // $status    = preg_replace("/,/","", $status);
+                \Yii::$app->getSession()->setFlash('success', 'Sukses');
+                $data->status = 'sukses';
+                $data->save();
             }
-        } else {
-            $count  = strpos($status, "GAGAL.");
-            if ($check) {
-                \Yii::$app->getSession()->setFlash('error', $status);
-            } else {
-                \Yii::$app->getSession()->setFlash('success', substr($status, 0, $count));
-            } 
-            $update = Tagihan::findOne([
-                'kode_tagihan' => $kode_tagihan,
-            ]);
-            if ($update->status_tagihan == '0') {
-                $update->status_tagihan = '4';
-                $update->save();
-            }
+        } else {            
+            \Yii::$app->getSession()->setFlash('error', 'Gagal');
+            $data->status = 'gagal';
+            $data->save();
         }
         
 
         return $this->goHome();
+    }
+
+    public function actionTagihan($id){
+        
+        $model  = $this->findModel($id);
+        if ($model->status === 'menunggu pembayaran') {
+            \Yii::$app->getSession()->setFlash('success', 'Lakukan Pembayaran');            
+        } else {
+            \Yii::$app->getSession()->setFlash('error', 'Gagal');
+        }
+
+        $result['model'] = $model;
+        return $this->render('view', $result);
+
     }
 
     /**
@@ -130,7 +117,7 @@ class DefaultController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Tagihan::findOne($id)) !== null) {
+        if (($model = Trx::findOne($id)) !== null) {
             return $model;
         }
 
