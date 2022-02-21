@@ -11,7 +11,6 @@ $this->title = 'Home';
         <?= $this->render('_form', [
             'model'        => $model,
             'modelLayanan' => $modelLayanan,
-            'modelWilayah' => $modelWilayah,
         ]) ?>
     </div>
     <div id="my_harga"></div>
