@@ -17,9 +17,9 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="col-sm-12">
         <h1><?= Html::encode($this->title) ?></h1>
             <p>
-                <?= Html::a('Ubah', ['update', 'id' => $model->id], ['class' => 'btn btn-success']) ?>
+                <?php Html::a('Ubah', ['update', 'id' => $model->id], ['class' => 'btn btn-success']) ?>
                 <?= Html::a('Upload Gambar', ['create-img', 'brand' => $model->brand, 'id' => $model->id], ['class' => 'btn btn-info']) ?>
-                <?= 
+                <?php 
                     Html::a('Hapus Produk', ['delete', 'id' => $model->id], [
                         'class' => 'btn btn-danger',
                         'data' => [

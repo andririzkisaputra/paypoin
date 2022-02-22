@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
-use common\models\Produk;
+use common\models\Product;
 
 /* @var $this yii\web\View */
 /* @var $model common\models\Kategori */
@@ -15,18 +15,18 @@ use common\models\Produk;
 
         <?= $form->errorSummary($model) ?>
 
-        <?= $form->field($model, 'code_layanan')->textInput(['type' => 'hidden', 'id' => 'code_layanan', 'value' => $modelLayanan])->label(false) ?>
+        <?= $form->field($model, 'trxtype')->textInput(['type' => 'hidden', 'id' => 'code_layanan', 'value' => $modelLayanan])->label(false) ?>
 
-        <?= $form->field($model, 'kode_produk')->textInput([
-            'type'  => 'hidden', 
-            'id'    => 'kode_produk',
-            'value' => Produk::find()->where([
-                'is_delete' => '1',
-                'code_layanan' => $modelLayanan
-            ])->one()->kode_produk
+        <?= $form->field($model, 'code')->textInput([
+            'type' => 'hidden', 
+            'id' => 'kode_produk',
+            'value' => Product::find()->where([
+                'type'     => $modelLayanan,
+                'category' => 'CEK TAGIHAN LISTRIK'
+            ])->orderBy(['name' => SORT_ASC])->one()->code
         ])->label(false) ?>
 
-        <?= $form->field($model, 'dest')->textInput([
+        <?= $form->field($model, 'data')->textInput([
             'class'       => 'form-control',
             'type'        => 'text',
             'placeholder' => '112233445566',

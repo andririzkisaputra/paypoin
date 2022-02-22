@@ -51,47 +51,49 @@ class DefaultController extends Controller
         return $this->render('index', $result);
     }
 
-    public function actionBayar($kode_tagihan)
+    public function actionBayar($code_bill)
     {
-
-        $model  = $this->findModel(['kode_tagihan' => $kode_tagihan]);
-        $produk = Produk::find()->where([
-            'layanan_id' => $model->layanan_id,
-            'jenis'      => '2'
-        ])->one();
-        $status = (new PayPoinApi)->getTransaksi([
-            'kode_produk'  => $produk->kode_produk,
-            'kode_tagihan' => $kode_tagihan,
-            'dest'         => $model->dest,
+        $data       = $this->findModel(['code_bill' => $code_bill]);
+        $status     = (new PayPoinApi)->getTransaksi([
+            'kode_produk'  => $data->code,
+            'kode_tagihan' => $code_bill,
+            'dest'         => $data->data,
         ]);
-        $check = preg_match('/sukses/i', $status);
-        $model = Tagihan::findOne([
-            'kode_tagihan' => $kode_tagihan,
-        ]);
-        if ($check) {
-            if ($model->status_tagihan == '0') {
-                $model->status_tagihan = '4';
-                $model->kode_produk    = $produk->kode_produk;
-                $model->save();
-            }
-            \Yii::$app->getSession()->setFlash('success', 'Berhasil');
-        } else {
-            $check = preg_match('/proses/i', $status);
-            if ($check) {
-                if ($model->status_tagihan == '0') {
-                    $model->status_tagihan = '1';
-                    $model->kode_produk    = $produk->kode_produk;
-                    $model->save();
+        $check      = preg_match('/GAGAL/i', $status);
+        if ($check == '0') {
+            $check  = preg_match('/Timeout Order/i', $status);
+            if ($check == '0') {
+                $check = preg_match('/sukses/i', $status);
+                if ($check) {
+                    // $countMin  = strpos($status, "Saldo: ");
+                    // $countMax  = strpos($status, "TrxId");
+                    // $status    = substr($status, 0, $countMax);
+                    // $status    = substr($status, $countMin, $countMax);
+                    // $status    = preg_replace("/Saldo: /","", $status);
+                    // $status    = preg_replace("/,/","", $status);
+                    \Yii::$app->getSession()->setFlash('success', 'Sukses');
+                    $data->status = 'sukses';
+                    $data->save();
+                } else {
+                    // $countMin  = strpos($status, " - ");
+                    // $countMax  = strpos($status, " = ");
+                    // $status    = substr($status, 0, $countMax);
+                    // $status    = substr($status, $countMin, $countMax);
+                    // $status    = preg_replace("/ - /","", $status);
+                    // $status    = preg_replace("/,/","", $status);
+                    \Yii::$app->getSession()->setFlash('success', 'Proses');
+                    $data->status = 'proses';
+                    $data->save();
                 }
-                \Yii::$app->getSession()->setFlash('success', 'Sedang di proses');
             } else {
-                if ($model->status_tagihan <= '1' ) {
-                    $model->kode_produk    = $produk->kode_produk;
-                    $model->status_tagihan = '4';
-                    $model->save();
-                }
-                \Yii::$app->getSession()->setFlash('error', $status);    
+                \Yii::$app->getSession()->setFlash('error', 'Gagal');
+                $data->status = 'gagal';
+                $data->save();
             }
+        } else {            
+            \Yii::$app->getSession()->setFlash('error', 'Gagal');
+            $data->status = 'gagal';
+            $data->save();
         }
         
 

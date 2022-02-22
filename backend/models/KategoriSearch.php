@@ -68,6 +68,7 @@ class KategoriSearch extends Category
         
         $query->andFilterWhere(['like', 'name', $this->name]);
         $query->orderBy(['updated_at' => SORT_DESC]);
+        $query->groupBy('real');
 
         return $dataProvider;
     }

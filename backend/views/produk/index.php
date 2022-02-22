@@ -3,8 +3,8 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\helpers\ArrayHelper;
-use common\models\Kategori;
-use common\models\Layanan;
+use common\models\Product;
+use common\models\Category;
 use common\components\Library;
 
 /* @var $this yii\web\View */
@@ -30,7 +30,10 @@ $this->params['breadcrumbs'][] = $this->title;
                     'class' => 'yii\grid\SerialColumn'
                 ],
                 'code',
-                'brand',
+                [
+                    'attribute' => 'brand',
+                    'filter' => ArrayHelper::map(Product::find()->groupBy('brand')->all(), 'brand', 'brand')
+                ],
                 'name',
                 'note',
                 'status',
@@ -56,7 +59,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 ],
                 [
                     'class'    => 'yii\grid\ActionColumn',
-                    'template' => '{detail}{ubah}{hapus}',
+                    'template' => '{detail}',
+                    // 'template' => '{detail}{ubah}{hapus}',
                     'buttons'  => [
                         'detail' => function ($url, $model) {
                             return Html::a('Detail', $url, [

@@ -39,16 +39,8 @@ AppAsset::register($this);
         ['label' => 'Tagihan', 'url' => ['/tagihan/index']],
         ['label' => 'Data',
             'items' => [
-                ['label' => 'Kategori Games', 'url' => ['/kategori-game/index']],
                 ['label' => 'Kategori', 'url' => ['/kategori/index']],
-                ['label' => 'Layanan', 'url' => ['/layanan/index']],
                 ['label' => 'Produk', 'url' => ['/produk/index']],
-            ],
-        ],
-        ['label' => 'Wilayah',
-            'items' => [
-                ['label' => 'Provinsi', 'url' => ['/provinsi/index']],
-                ['label' => 'Kota', 'url' => ['/kota/index']],
             ],
         ],
     ];

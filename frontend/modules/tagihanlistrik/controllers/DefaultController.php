@@ -5,7 +5,7 @@ namespace frontend\modules\tagihanlistrik\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
-use common\models\Tagihan;
+use common\models\Trx;
 use common\models\Layanan;
 use common\models\Produk;
 use frontend\modules\tagihanlistrik\models\TagihanForm;
@@ -39,10 +39,9 @@ class DefaultController extends Controller
     {
         $model = new TagihanForm();
         if ($model->load(Yii::$app->request->post())) {
-            $tagihan_id = $model->simpan();
-            if ($tagihan_id) {
-                sleep(7);
-                return $this->redirect(['tagihan?tagihan_id='.$tagihan_id]);
+            $id = $model->simpan();
+            if ($id) {
+                return $this->redirect(['tagihan?id='.$id]);
             } else {
                 \Yii::$app->getSession()->setFlash('error', 'Gagal Silahkan Tunggu Beberapa Saat Lagi');
             }
@@ -53,93 +52,109 @@ class DefaultController extends Controller
         return $this->render('index', $result);
     }
 
-    public function actionBayar($kode_tagihan)
+    public function actionBayar($code_bill)
     {
-
-        $model  = $this->findModel(['kode_tagihan' => $kode_tagihan]);
-        $produk = Produk::find()->where([
-            'code_layanan' => $model->code_layanan,
-            'jenis'      => '2'
-        ])->one();
-        $status = (new PayPoinApi)->getTransaksi([
-            'kode_produk'  => $produk->kode_produk,
-            'kode_tagihan' => $kode_tagihan,
-            'dest'         => $model->dest,
+        $data       = $this->findModel(['code_bill' => $code_bill]);
+        $status     = (new PayPoinApi)->getTransaksi([
+            'kode_produk'  => $data->code,
+            'kode_tagihan' => $code_bill,
+            'dest'         => $data->data,
         ]);
-        $check = preg_match('/sukses/i', $status);
-        $model = Tagihan::findOne([
-            'kode_tagihan' => $kode_tagihan,
-        ]);
-        if ($check) {
-            if ($model->status_tagihan == '0') {
-                $model->status_tagihan = '4';
-                $model->kode_produk    = $produk->kode_produk;
-                $model->save();
-            }
-            \Yii::$app->getSession()->setFlash('success', 'Berhasil');
-        } else {
-            $check = preg_match('/proses/i', $status);
-            if ($check) {
-                if ($model->status_tagihan == '0') {
-                    $model->status_tagihan = '1';
-                    $model->kode_produk    = $produk->kode_produk;
-                    $model->save();
+        $check      = preg_match('/GAGAL/i', $status);
+        if ($check == '0') {
+            $check  = preg_match('/Timeout Order/i', $status);
+            if ($check == '0') {
+                $check = preg_match('/sukses/i', $status);
+                if ($check) {
+                    // $countMin  = strpos($status, "Saldo: ");
+                    // $countMax  = strpos($status, "TrxId");
+                    // $status    = substr($status, 0, $countMax);
+                    // $status    = substr($status, $countMin, $countMax);
+                    // $status    = preg_replace("/Saldo: /","", $status);
+                    // $status    = preg_replace("/,/","", $status);
+                    \Yii::$app->getSession()->setFlash('success', 'Sukses');
+                    $data->status = 'sukses';
+                    $data->save();
+                } else {
+                    // $countMin  = strpos($status, " - ");
+                    // $countMax  = strpos($status, " = ");
+                    // $status    = substr($status, 0, $countMax);
+                    // $status    = substr($status, $countMin, $countMax);
+                    // $status    = preg_replace("/ - /","", $status);
+                    // $status    = preg_replace("/,/","", $status);
+                    \Yii::$app->getSession()->setFlash('success', 'Proses');
+                    $data->status = 'proses';
+                    $data->save();
                 }
-                \Yii::$app->getSession()->setFlash('success', 'Sedang di proses');
             } else {
-                if ($model->status_tagihan <= '1' ) {
-                    $model->kode_produk    = $produk->kode_produk;
-                    $model->status_tagihan = '4';
-                    $model->save();
-                }
-                \Yii::$app->getSession()->setFlash('error', $status);    
+                \Yii::$app->getSession()->setFlash('error', 'Gagal');
+                $data->status = 'gagal';
+                $data->save();
             }
+        } else {            
+            \Yii::$app->getSession()->setFlash('error', 'Gagal');
+            $data->status = 'gagal';
+            $data->save();
         }
         
 
         return $this->goHome();
     }
 
-    public function actionTagihan($tagihan_id){
+    public function actionTagihan($id){
         
-        $model  = $this->findModel($tagihan_id);
-        $modelLayanan = Produk::findOne([
-            'code_layanan' => $model->code_layanan,
-            'jenis'      => '2'
-        ]);
-        $status = (new PayPoinApi)->getTransaksi([
-            'kode_produk'  => $model->kode_produk, 
-            'kode_tagihan' => $model->kode_tagihan, 
-            'dest'         => $model->dest, 
-        ]);
-
-        $check = preg_match('/sukses/i', $status);
-        if ($check) {
-            $array                 = explode('/',$status);            
-            $nama                  = str_replace('NAMA:','',$array[3]);
-            $tagihan               = str_replace('Ref: Tagihan RP','',$array[1]);
-            if ($modelLayanan->harga_markup) {
-                $tagihan = $tagihan+$modelLayanan->harga_markup;
-            } elseif ($modelLayanan->harga_markdown) {
-                $tagihan = $tagihan-$modelLayanan->harga_markdown;
-            }
-            $tagihan               = $tagihan+$modelLayanan->harga_produk;
-            $model->nama_pelanggan = (string)$nama;
-            $model->total_harga    = (string)$tagihan;
-            $model->save();
+        $model  = $this->findModel($id);
+        if ($model->status === 'menunggu pembayaran') {
             \Yii::$app->getSession()->setFlash('success', 'Lakukan Pembayaran');            
         } else {
-            $model->status_tagihan = '4';
-            $model->save();
             \Yii::$app->getSession()->setFlash('error', 'Tagihan Belum Tersedia Untuk Bulan Ini/Sudah Lunas');
         }
 
-        
         $result['model'] = $model;
-        $result['nama']  = $nama;
         return $this->render('view', $result);
 
     }
+
+    // public function actionTagihan($tagihan_id){
+        
+    //     $model  = $this->findModel($tagihan_id);
+    //     $modelLayanan = Produk::findOne([
+    //         'code_layanan' => $model->code_layanan,
+    //         'jenis'      => '2'
+    //     ]);
+    //     $status = (new PayPoinApi)->getTransaksi([
+    //         'kode_produk'  => $model->kode_produk, 
+    //         'kode_tagihan' => $model->kode_tagihan, 
+    //         'dest'         => $model->dest, 
+    //     ]);
+
+    //     $check = preg_match('/sukses/i', $status);
+    //     if ($check) {
+    //         $array                 = explode('/',$status);            
+    //         $nama                  = str_replace('NAMA:','',$array[3]);
+    //         $tagihan               = str_replace('Ref: Tagihan RP','',$array[1]);
+    //         if ($modelLayanan->harga_markup) {
+    //             $tagihan = $tagihan+$modelLayanan->harga_markup;
+    //         } elseif ($modelLayanan->harga_markdown) {
+    //             $tagihan = $tagihan-$modelLayanan->harga_markdown;
+    //         }
+    //         $tagihan               = $tagihan+$modelLayanan->harga_produk;
+    //         $model->nama_pelanggan = (string)$nama;
+    //         $model->total_harga    = (string)$tagihan;
+    //         $model->save();
+    //         \Yii::$app->getSession()->setFlash('success', 'Lakukan Pembayaran');            
+    //     } else {
+    //         $model->status_tagihan = '4';
+    //         $model->save();
+    //         \Yii::$app->getSession()->setFlash('error', 'Tagihan Belum Tersedia Untuk Bulan Ini/Sudah Lunas');
+    //     }
+
+        
+    //     $result['model'] = $model;
+    //     $result['nama']  = $nama;
+    //     return $this->render('view', $result);
+
+    // }
 
     /**
      * Finds the Tagihan model based on its primary key value.
@@ -150,7 +165,7 @@ class DefaultController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Tagihan::findOne($id)) !== null) {
+        if (($model = Trx::findOne($id)) !== null) {
             return $model;
         }
 

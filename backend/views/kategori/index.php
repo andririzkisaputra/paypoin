@@ -33,15 +33,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     'contentOptions' => ['class' => 'text-center'],
                 ],
                 [
-                    'class' => 'yii\grid\DataColumn',
-                    'attribute' => 'name',
-                    'headerOptions' => ['class' => 'text-center'],
-                    'label' => 'Nama',
-                    'contentOptions' => ['class' => 'text-center'],
-                ],
-                [
                     'class'    => 'yii\grid\ActionColumn',
-                    'template' => '{detail}{ubah}{hapus}',
+                    'template' => '{detail}',
                     'header'   => 'Aksi',
                     'buttons'  => [
                         'detail' => function ($url, $model) {

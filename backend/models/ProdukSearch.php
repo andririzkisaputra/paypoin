@@ -65,7 +65,9 @@ class ProdukSearch extends Product
             'updated_at' => $this->updated_at,
         ]);
         
-        $query->andFilterWhere(['like', 'code', $this->code]);
+        $query->andFilterWhere(['like', 'code', $this->code])
+              ->andFilterWhere(['like', 'type', $this->type])
+              ->andFilterWhere(['like', 'brand', $this->brand]);
             $query->orderBy(['brand' => SORT_DESC]);
 
         return $dataProvider;
